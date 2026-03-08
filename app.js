@@ -45,6 +45,7 @@ const POINT_LABELS = {
 };
 
 const POINT_TYPE_ORDER = ['center', 'extreme', 'corner', 'other', 'fault'];
+const ACTOR_WARNING_TEXT = 'Veuillez renseigner les noms des acteurs avant de commencer l’analyse.';
 
 const SHARED_TERRAIN_MODES = [
     { id: 'leftright', label: '3 zones gauche/droite' },
@@ -119,6 +120,7 @@ const els = {
     p2Name: document.getElementById('p2Name'),
     obsName: document.getElementById('obsName'),
     heatmapToggle: document.getElementById('toggle-heatmap'),
+    actorValidationMsg: document.getElementById('actorValidationMsg'),
     startAppBtn: document.getElementById('startAppBtn'),
     openHelpBtn: document.getElementById('openHelpBtn'),
     backToLandingBtn: document.getElementById('backToLandingBtn'),
@@ -168,6 +170,7 @@ function init() {
     renderCourts();
     updateDashboard();
     initCharts();
+    updateActorValidationUI();
     attachScreenEvents();
 }
 
@@ -192,6 +195,7 @@ function setupEventListeners() {
         els[`${key}Name`].addEventListener('input', (event) => {
             state.names[key] = event.target.value;
             updateDashboard();
+            if (key !== 'obs') updateActorValidationUI();
         });
     });
 
@@ -199,6 +203,7 @@ function setupEventListeners() {
         const previousType = state.actorType;
         state.actorType = event.target.value;
         applyActorTypeContext(state.actorType, false, previousType);
+        updateActorValidationUI();
     });
 
     els.classInput.addEventListener('input', (event) => {
@@ -247,6 +252,11 @@ function setupEventListeners() {
     }, { passive: false });
 
     els.tabs.forEach((tab) => {
+        tab.addEventListener('show.bs.tab', (event) => {
+            if (event.target.id === 'game-tab' && !ensureActorsValid(true)) {
+                event.preventDefault();
+            }
+        });
         tab.addEventListener('shown.bs.tab', (event) => {
             if (event.target.id === 'stats-tab') {
                 updateCharts();
@@ -360,6 +370,53 @@ function attachDefaultInputClearing(input, stateKey) {
             }
         }
     });
+}
+
+function getActorDefaults() {
+    const config = ACTOR_TYPES[state.actorType] || ACTOR_TYPES.players;
+    return config.nomLabels;
+}
+
+function isActorFieldValid(playerKey) {
+    const value = (state.names[playerKey] || '').trim();
+    if (!value) return false;
+    const defaults = getActorDefaults();
+    const index = playerKey === 'p1' ? 0 : 1;
+    const defaultValue = (defaults[index] || '').trim();
+    return value.toLowerCase() !== defaultValue.toLowerCase();
+}
+
+function areActorsValid() {
+    return isActorFieldValid('p1') && isActorFieldValid('p2');
+}
+
+function updateActorValidationUI() {
+    const validP1 = isActorFieldValid('p1');
+    const validP2 = isActorFieldValid('p2');
+    toggleInvalidState(els.p1Name, validP1);
+    toggleInvalidState(els.p2Name, validP2);
+    if (els.actorValidationMsg) {
+        if (validP1 && validP2) {
+            els.actorValidationMsg.classList.add('d-none');
+        } else {
+            els.actorValidationMsg.classList.remove('d-none');
+            els.actorValidationMsg.textContent = ACTOR_WARNING_TEXT;
+        }
+    }
+}
+
+function toggleInvalidState(input, isValid) {
+    if (!input) return;
+    input.classList.toggle('input-invalid', !isValid);
+}
+
+function ensureActorsValid(showAlert = false) {
+    const valid = areActorsValid();
+    updateActorValidationUI();
+    if (!valid && showAlert) {
+        alert(ACTOR_WARNING_TEXT);
+    }
+    return valid;
 }
 
 function attachScreenEvents() {
@@ -830,6 +887,7 @@ function buildParticipantPayload(label, playerKey, atelierLabel) {
 }
 
 function generateQR() {
+    if (!ensureActorsValid(true)) return;
     const payload = buildScanProfPayload();
     const pretty = JSON.stringify(payload, null, 2);
     console.log(pretty);

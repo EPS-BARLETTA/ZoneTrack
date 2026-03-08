@@ -506,6 +506,17 @@ h2 {
     letter-spacing: 0.5px;
 }
 
+.input-invalid {
+    border-color: #ff6b6b !important;
+    box-shadow: 0 0 0 1px rgba(255, 107, 107, 0.35);
+}
+
+.actor-warning {
+    color: #ff8585;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
 .qr-json-preview {
     display: none;
 }
