@@ -1,279 +1,191 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chronomètre Vitesse</title>
-    <style>
-        /* Styles de base */
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f4f4f4;
-        }
-        h1 {
-            color: #333;
-        }
-        #timer-display {
-            font-size: 2em;
-            margin-bottom: 20px;
-        }
-        #input-controls {
-            margin-top: 20px;
-        }
-        #input-controls label {
-            margin: 5px;
-        }
-        #input-controls input {
-            margin: 5px;
-            padding: 10px;
-            font-size: 1.2em;
-            width: 120px;
-        }
-        /* Styles des boutons */
-        #timer-controls {
-            display: flex; /* Utilise flexbox pour aligner les boutons */
-            justify-content: center; /* Centre les boutons */
-            gap: 10px; /* Espace entre les boutons */
-            margin-bottom: 20px; /* Marge en bas des contrôles de timer */
-        }
-        #timer-controls button {
-            padding: 0;
-            font-size: 14px;
-            font-weight: bold;
-            width: 80px;
-            height: 80px;
-            border: none;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%; /* Garder les boutons ronds */
-            margin: 5px; /* Espacement entre les boutons */
-        }
-        #start-button {
-            background-color: #008CBA; /* Bleu */
-        }
-        #intermediate-button {
-            background-color: #4CAF50; /* Vert */
-        }
-        #stop-button {
-            background-color: #f44336; /* Rouge */
-        }
-        #reset-download-controls {
-            display: flex; /* Utilise flexbox pour aligner les boutons */
-            justify-content: center; /* Centre les boutons */
-            gap: 10px; /* Espace entre les boutons */
-        }
-        #reset-button, #download-button {
-            padding: 10px 20px;
-            margin: 5px; /* Espacement entre les boutons */
-            border-radius: 5px; /* Bord arrondi */
-            cursor: pointer;
-            font-weight: bold;
-            color: white;
-        }
-        #reset-button {
-            background-color: #f44336; /* Rouge */
-        }
-        #download-button {
-            background-color: #FF9800; /* Orange */
-        }
-        #results {
-            margin-top: 20px;
-            width: 80%;
-            max-width: 400px;
-        }
-        #results ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        #results li {
-            background: #e0e0e0;
-            margin-bottom: 5px;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .final-result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 5px;
-            background-color: #D0E8FF;
-            color: #333;
-            font-weight: bold;
-        }
-        #creator {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 0.9em;
-        }
-        #creator a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-    </style>
+    <title>CourtMap • Zones d'Impact</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+    <div class="container pb-5">
+        <h2 class="text-center mt-2"><i class="bi bi-activity"></i> CourtMap</h2>
+        <p class="text-center text-muted mb-3">Analyse des zones d’impact • Version EPS ready</p>
 
-    <h1>Chronomètre Vitesse</h1>
+        <ul class="nav nav-tabs" id="appTabs" role="tablist">
+            <li class="nav-item flex-fill text-center" role="presentation">
+                <button class="nav-link w-100 active" id="params-tab" data-bs-toggle="tab" data-bs-target="#params" type="button">Réglages</button>
+            </li>
+            <li class="nav-item flex-fill text-center" role="presentation">
+                <button class="nav-link w-100" id="game-tab" data-bs-toggle="tab" data-bs-target="#game" type="button">Analyse du jeu</button>
+            </li>
+            <li class="nav-item flex-fill text-center" role="presentation">
+                <button class="nav-link w-100" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats" type="button">Bilan</button>
+            </li>
+        </ul>
 
-    <div id="input-controls">
-        <label for="total-distance">Distance Totale (m) :</label>
-        <input type="number" id="total-distance" value="800">
-        <label for="intermediate-distance">Distance Intermédiaire (m) :</label>
-        <input type="number" id="intermediate-distance" value="200">
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="params" role="tabpanel">
+                <div class="row g-3">
+                    <div class="col-lg-6">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="metro-tile bg-blue">
+                                    <h5 class="mb-3"><i class="bi bi-people-fill me-2"></i>Acteurs</h5>
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-md-4">
+                                            <label class="form-label text-uppercase small mb-1">Type d'acteurs</label>
+                                            <select id="actorTypeSelect" class="form-select">
+                                                <option value="players" selected>Joueurs</option>
+                                                <option value="teams">Équipes</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label text-uppercase small mb-1">Classe</label>
+                                            <input type="text" id="classInput" class="form-control" placeholder="4C">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label text-uppercase small mb-1">Sport</label>
+                                            <select id="sportSelect" class="form-select">
+                                                <option value="badminton" selected>Badminton</option>
+                                                <option value="tennis_de_table">Tennis de table</option>
+                                                <option value="pickleball">Pickleball</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 mt-2">
+                                            <div class="form-check form-switch d-flex align-items-center gap-3">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="toggle-heatmap">
+                                                <label class="form-check-label text-uppercase small" for="toggle-heatmap">Afficher la heatmap</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2 mt-2">
+                                        <div class="col-sm-6"><input type="text" id="p1Name" class="form-control" value="Joueur 1" placeholder="Joueur 1"></div>
+                                        <div class="col-sm-6"><input type="text" id="p2Name" class="form-control" value="Joueur 2" placeholder="Joueur 2"></div>
+                                        <div class="col-12"><input type="text" id="obsName" class="form-control" value="Observateur" placeholder="Nom Observateur"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="metro-tile bg-purple">
+                                    <h5 class="mb-3"><i class="bi bi-grid-1x2 me-2"></i>Type de terrain</h5>
+                                    <select id="modeSelect" class="form-select mb-3">
+                                        <option value="leftright" selected>3 zones : gauche / droite</option>
+                                        <option value="frontback">3 zones : avant / arrière</option>
+                                        <option value="4corners">9 zones : 4 coins + fautes</option>
+                                    </select>
+                                    <div id="center-size-group">
+                                        <label class="form-label mb-1">Taille de la zone centrale : <span id="centerSizeLabel" class="fw-bold">33%</span></label>
+                                        <input type="range" class="form-range" id="centerSizeSlider" min="20" max="60" value="33" step="1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="metro-tile bg-grey border border-secondary">
+                                    <h5 class="mb-3"><i class="bi bi-123 me-2"></i>Valeur des points</h5>
+                                    <div class="row g-2" id="pointsContainer"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 d-flex align-items-center justify-content-center">
+                        <div class="metro-tile bg-dark w-100 border border-secondary text-center mt-3 mt-lg-0 preview-tile">
+                            <h5 class="mb-4 text-muted">Aperçu du terrain</h5>
+                            <div id="preview-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="game" role="tabpanel">
+                <div class="score-dashboard">
+                    <div class="player-stat">
+                        <div class="player-name-dash" id="dashName1">Joueur 1</div>
+                        <div class="player-score-dash" id="dashScore1">0</div>
+                        <div class="player-ratio-dash" id="dashRatio1">Ratio : 0%</div>
+                    </div>
+                    <div class="d-flex gap-2 justify-content-center w-100 w-md-auto">
+                        <button id="undoBtn" class="btn btn-metro-action bg-grey text-white" disabled><i class="bi bi-arrow-counterclockwise"></i></button>
+                        <button id="redoBtn" class="btn btn-metro-action bg-grey text-white" disabled><i class="bi bi-arrow-clockwise"></i></button>
+                        <button id="resetBtn" class="btn btn-metro-action bg-red text-white ms-3"><i class="bi bi-trash-fill"></i></button>
+                    </div>
+                    <div class="player-stat">
+                        <div class="player-name-dash" id="dashName2">Joueur 2</div>
+                        <div class="player-score-dash" id="dashScore2">0</div>
+                        <div class="player-ratio-dash" id="dashRatio2">Ratio : 0%</div>
+                    </div>
+                </div>
+                <div id="game-container"></div>
+            </div>
+
+            <div class="tab-pane fade" id="stats" role="tabpanel">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="metro-tile bg-grey">
+                            <h5 class="text-center mb-3" id="chartTitle1">Stats Joueur 1</h5>
+                            <div class="chart-container">
+                                <canvas id="chartP1"></canvas>
+                            </div>
+                            <div id="statRatioVal1" class="stat-ratio-box">Ratio Extérieur : 0%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="metro-tile bg-grey">
+                            <h5 class="text-center mb-3" id="chartTitle2">Stats Joueur 2</h5>
+                            <div class="chart-container">
+                                <canvas id="chartP2"></canvas>
+                            </div>
+                            <div id="statRatioVal2" class="stat-ratio-box">Ratio Extérieur : 0%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3 justify-content-center mt-4">
+                    <div class="col-md-6 col-lg-4 text-center">
+                        <button id="showQRBtn" class="btn-qr-scanprof">
+                            <i class="bi bi-qr-code display-6"></i>
+                            <span>QR Code ScanProf</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="qrModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Exportation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body bg-light text-dark py-4">
+                        <div class="d-flex justify-content-center mb-3" id="qrCodeOutput"></div>
+                        <pre id="qrJsonPreview" class="qr-json-preview mb-0"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="resetModal" tabindex="-1">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0 pb-0"><h5 class="modal-title">Confirmation</h5></div>
+                    <div class="modal-body">Effacer tous les points ?</div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn bg-grey text-white" data-bs-dismiss="modal">Non</button>
+                        <button type="button" class="btn bg-red text-white" id="confirmResetBtn">Oui</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="timer-display">00:00:00</div>
-
-    <div id="timer-controls">
-        <button id="start-button">Démarrer</button>
-        <button id="intermediate-button">Tour</button>
-        <button id="stop-button">Stop</button>
-    </div>
-
-    <div id="reset-download-controls">
-        <button id="reset-button">Réinitialiser</button>
-        <button id="download-button">Télécharger</button>
-    </div>
-
-    <div id="results">
-        <h3>Temps Intermédiaires</h3>
-        <ul id="time-list"></ul>
-        <p id="final-result" class="final-result"></p>
-    </div>
-
-    <div id="creator">
-        <p>Créé par Jérôme BARLETTA</p>
-        <a href="http://bjerome.eklablog.com/accueil-c30088056" target="_blank">Accéder au blog</a>
-    </div>
-
-    <script>
-        let startTime = null;
-        let intervalId = null;
-        let intermediateTimes = [];
-        let totalDistance = 800; // Distance totale par défaut
-        let intermediateDistance = 200; // Distance intermédiaire par défaut
-        let currentDistance = 0;
-
-        const timerDisplay = document.getElementById('timer-display');
-        const timeList = document.getElementById('time-list');
-        const finalResult = document.getElementById('final-result');
-
-        const startButton = document.getElementById('start-button');
-        const intermediateButton = document.getElementById('intermediate-button');
-        const stopButton = document.getElementById('stop-button');
-        const resetButton = document.getElementById('reset-button');
-        const downloadButton = document.getElementById('download-button');
-
-        const totalDistanceInput = document.getElementById('total-distance');
-        const intermediateDistanceInput = document.getElementById('intermediate-distance');
-
-        // Événements pour les inputs
-        totalDistanceInput.addEventListener('input', () => {
-            totalDistance = parseInt(totalDistanceInput.value);
-        });
-
-        intermediateDistanceInput.addEventListener('input', () => {
-            intermediateDistance = parseInt(intermediateDistanceInput.value);
-        });
-
-        function formatTime(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const remainingSeconds = Math.floor(seconds % 60);
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-        }
-
-        function calculateSpeed(timeInSeconds, distance) {
-            if (timeInSeconds === 0) return 0;
-            return ((distance / timeInSeconds) * 3.6).toFixed(2);
-        }
-
-        function updateTimer() {
-            const elapsed = Math.floor((new Date() - startTime) / 1000);
-            timerDisplay.textContent = formatTime(elapsed);
-        }
-
-        startButton.addEventListener('click', () => {
-            if (!intervalId) {
-                startTime = new Date();
-                intervalId = setInterval(updateTimer, 1000);
-                currentDistance = 0;
-                intermediateTimes = [];
-                timeList.innerHTML = '';
-                finalResult.textContent = '';
-            }
-        });
-
-        intermediateButton.addEventListener('click', () => {
-            if (intervalId && currentDistance + intermediateDistance <= totalDistance) {
-                const now = new Date();
-                const elapsed = Math.floor((now - startTime) / 1000);
-                currentDistance += intermediateDistance;
-
-                const speed = calculateSpeed(elapsed, currentDistance);
-                const timeEntry = document.createElement('li');
-                timeEntry.textContent = `Distance: ${currentDistance}m - Temps: ${formatTime(elapsed)} - Vitesse: ${speed} km/h`;
-                timeList.appendChild(timeEntry);
-                intermediateTimes.push({
-                    distance: currentDistance,
-                    elapsed: elapsed,
-                    speed: speed
-                });
-            }
-        });
-
-        stopButton.addEventListener('click', () => {
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
-
-                const elapsed = Math.floor((new Date() - startTime) / 1000);
-                const averageSpeed = calculateSpeed(elapsed, totalDistance);
-                finalResult.textContent = `Temps Total: ${formatTime(elapsed)} - Vitesse Moyenne: ${averageSpeed} km/h`;
-            }
-        });
-
-        resetButton.addEventListener('click', () => {
-            clearInterval(intervalId);
-            intervalId = null;
-            timerDisplay.textContent = '00:00:00';
-            currentDistance = 0;
-            intermediateTimes = [];
-            timeList.innerHTML = '';
-            finalResult.textContent = '';
-        });
-
-        downloadButton.addEventListener('click', () => {
-            const elapsed = Math.floor((new Date() - startTime) / 1000);
-            const averageSpeed = calculateSpeed(elapsed, totalDistance);
-                        const data = intermediateTimes.map(entry => 
-                `Distance: ${entry.distance}m - Temps: ${formatTime(entry.elapsed)} - Vitesse: ${entry.speed} km/h`
-            ).join('\n');
-            
-            // Ajout du temps total et de la vitesse moyenne
-            const totalElapsed = Math.floor((new Date() - startTime) / 1000);
-            const averageSpeed = calculateSpeed(totalElapsed, totalDistance);
-            const finalData = `\nTemps Total: ${formatTime(totalElapsed)} - Vitesse Moyenne: ${averageSpeed} km/h\n`;
-
-            const blob = new Blob([data + finalData], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'temps_intermediaires.txt';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="app.js" defer></script>
 </body>
+
 </html>
